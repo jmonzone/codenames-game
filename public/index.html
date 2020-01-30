@@ -2,11 +2,25 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Codenames</title>
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="/js/index.js"></script>
+    <title>Join Room | Codenames</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   </head>
-  <body>
-    Welcome to Codenames!
+  <body class="centered-form">
+    <div class="centered-form">
+      <form action="/game.html">
+        <div class="form-field"><h3>Join Room</h3></div>
+        <div class="form-field">
+          <label>Display name</label>
+          <input type="text" name="name" autofocus>
+        </div>
+        <div class="form-field">
+          <label>Room name</label>
+          <input type="text" name="room" autofocus>
+        </div>
+        <div class="form-field">
+          <button>Join</button>
+        </div>
+      </form>
+    </div>
   </body>
 </html>
