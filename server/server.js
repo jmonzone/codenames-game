@@ -16,6 +16,7 @@ let users = new Users();
 app.use(express.static(publicPath));
 
 io.on('connect', (socket) => {
+
   socket.on('joinRequest', (params) => {
 
     var name = params.name;
@@ -28,12 +29,23 @@ io.on('connect', (socket) => {
     users.removeUser(socket.id);
     var user = users.addUser(socket.id, name, room);
 
+    if(users.getUsers(room).length == 1){
+      user.isHost = true;
+    }
+
     io.to(room).emit('updateUsers', users.getUsers(room));
 
     socket.on('messageRequest', (message) => {
       sendMessage(room, name, message);
     });
+
+    // socket.on('startRequest', () => {
+    //
+    // });
+
   });
+
+
 
   socket.on('disconnect', () => {
     let user = users.removeUser(socket.id);
@@ -42,12 +54,15 @@ io.on('connect', (socket) => {
       console.log(user.name + ' has just left ' + user.room + '.');
     }
   });
-
-
 });
 
 function sendMessage(to, from, message){
   io.to(to).emit('messageSent', from, message);
+}
+
+function assignTeams(){
+  var teams = new Map();
+  return teams;
 }
 
 server.listen(port, () => {
