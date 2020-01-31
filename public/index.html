@@ -4,8 +4,6 @@
     <meta charset="utf-8">
     <title>Client | Codenames</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
-    <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/index.js"></script>
   </head>
   <body>
@@ -13,11 +11,10 @@
     <h1>Codenames AI Bot</h1>
 
     <div id="interactions">
-      <button id="start">Start Game</button>
+      <button id="start" onclick="start()">Start</button>
     </div>
 
     <div id="messages">
-      <br></br>
     </div>
 
   </body>
