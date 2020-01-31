@@ -2,25 +2,23 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Join Room | Codenames</title>
+    <title>Client | Codenames</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
   </head>
-  <body class="centered-form">
-    <div class="centered-form">
-      <form action="/client.html">
-        <div class="form-field"><h3>Join Room</h3></div>
-        <div class="form-field">
-          <label>Display name</label>
-          <input type="text" name="name" autofocus>
-        </div>
-        <div class="form-field">
-          <label>Room name</label>
-          <input type="text" name="room" autofocus>
-        </div>
-        <div class="form-field">
-          <button>Join</button>
-        </div>
-      </form>
+  <body>
+
+    <h1>Codenames AI Bot</h1>
+
+    <div id="interactions">
+      <button id="start">Start Game</button>
     </div>
+
+    <div id="messages">
+      <br></br>
+    </div>
+
   </body>
 </html>
