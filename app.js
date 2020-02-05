@@ -20,13 +20,27 @@ server.listen(port, () => {
 io.on('connect', (socket) => {
 
   socket.on('wordsCreated', (words) => {
-    var dictstring = JSON.stringify(words);
-    fs.writeFile("words.json", dictstring, (err, result) => {
-      if(err)
-        console.log('error', err);
-    });
-    
-    console.log(dictstring);
+
+    var jsonWords = createJSONwords(words);
+
+    //TEMP
+    var hint = createHint(jsonWords);
+    io.to(socket.id).emit('hintGiven', hint);
   });
 
 });
+
+function createJSONwords(words){
+  var jsonWords = JSON.stringify(words);
+  fs.writeFile("words.json", jsonWords, (err, result) => {
+    if(err)
+      console.log('error', err);
+  });
+  return jsonWords
+}
+
+//TEMP
+function createHint(words){
+  var hint = '[HINT]'
+  return hint;
+}

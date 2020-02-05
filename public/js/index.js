@@ -13,10 +13,11 @@ function start(){
   displayWords(words);
 
   socket.emit('wordsCreated', words);
-
-  var hint = createHint();
-  displayHint(hint);
 }
+
+socket.on('hintGiven', (hint) => {
+  displayHint(hint);
+});
 
 function displayWords(words){
   //HTML reference to DOM element to display the words
@@ -80,10 +81,4 @@ function createColorMap(){
 //TEMP
 function displayHint(hint){
   announce('Hint: ' + hint);
-}
-
-//TEMP
-function createHint(){
-  var hint = '[HINT]'
-  return hint;
 }
