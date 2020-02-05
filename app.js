@@ -41,6 +41,6 @@ function createJSONwords(words){
 
 //TEMP
 function createHint(words){
-  var hint = '[HINT]'
+  var hint = '[HINT] [COUNT]'
   return hint;
 }
