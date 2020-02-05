@@ -4,7 +4,9 @@
     <meta charset="utf-8">
     <title>Client | Codenames</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/index.js"></script>
+    <link rel="stylesheet" href="/css/index.css">
   </head>
   <body>
 
@@ -14,8 +16,9 @@
       <button id="start" onclick="start()">Start</button>
     </div>
 
-    <div id="messages">
-    </div>
+    <div id="word-display"></div>
+
+    <div id="messages"></div>
 
   </body>
 </html>
