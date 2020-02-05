@@ -26,7 +26,25 @@ io.on('connect', (socket) => {
     //TEMP
     var hint = createHint(jsonWords);
     io.to(socket.id).emit('hintGiven', hint);
+    io.to(socket.id).emit('messageSent', 'Select 3 words based on the given hint.');
+    io.to(socket.id).emit('messageSent', 'JSON words: ' + jsonWords);
+
+
   });
+
+  var selectedWords = [];
+  var cachedWords =[]
+  socket.on('wordSelected', (word) => {
+    if (!cachedWords.includes(word.string)){
+      selectedWords.push(word);
+      cachedWords.push(word.string);
+    }
+
+    if (selectedWords.length == 3){
+      var jsonResults = createResultsFile(selectedWords);
+      io.to(socket.id).emit('messageSent', 'JSON results: ' +  jsonResults);
+    }
+  })
 
 });
 
@@ -41,6 +59,15 @@ function createJSONwords(words){
 
 //TEMP
 function createHint(words){
-  var hint = '[HINT] [COUNT]'
+  var hint = 'Groceries 3'
   return hint;
+}
+
+function createResultsFile(results){
+  var jsonResults = JSON.stringify(results);
+  fs.writeFile("results.json", jsonResults, (err, result) => {
+    if(err)
+      console.log('error', err);
+  });
+  return jsonResults;
 }

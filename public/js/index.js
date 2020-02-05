@@ -1,8 +1,16 @@
 let socket = io();
 
+socket.on('messageSent', (message) => {
+  announce(message);
+});
+
 function announce(message) {
-  var chatText = document.getElementById('messages');
-  chatText.innerHTML += '<div>' + message + '</div>';
+  var announcement = document.createElement('div');
+  announcement.innerHTML = message;
+  announcement.className = 'announcement';
+
+  var announcements = document.getElementById('messages');
+  announcements.append(announcement);
 }
 
 function start(){
@@ -24,7 +32,7 @@ function displayWords(words){
   var display = document.getElementById('word-display');
 
   words.forEach((word) => {
-    var cell = document.createElement('div');
+    var cell = document.createElement('BUTTON');
     cell.className = 'word';
     cell.innerHTML = word.string;
 
@@ -39,6 +47,10 @@ function displayWords(words){
         cell.style.backgroundColor = 'darkgrey';
         break;
     }
+
+    cell.addEventListener('click', () => {
+      socket.emit('wordSelected', word);
+    });
 
     display.append(cell);
   });
@@ -68,8 +80,9 @@ function createWords(){
 
 //TEMP
 function createWordStrings(){
-  var word = ['[WORD1]','[WORD2]','[WORD3]','[WORD4]','[WORD5]','[WORD6]','[WORD7]','[WORD8]','[WORD9]'];
-  return word;
+  // var words = ['[WORD1]','[WORD2]','[WORD3]','[WORD4]','[WORD5]','[WORD6]','[WORD7]','[WORD8]','[WORD9]'];
+  var words = ['Apple','Computer','Japan','Glasses','Bag','Fish','Italy','Dictionary','Book'];
+  return words;
 }
 
 //TEMP
