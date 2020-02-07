@@ -35,21 +35,21 @@ def candidates(answers, bad, size=100):
     res = [(str(i + 1), "{0:.2f}".format(minimax(w, answers, bad)), w) for i, w in enumerate(sorted(best[:250], key=lambda w: -1 * minimax(w, answers, bad))[:size])]
     return [(c[2]) for c in res]
 
-# words = json.loads(sys.argv[1])
-#
-# answers = []
-# bad = []
-#
-# for word in words:
-#     if word['color'] == 'blue':
-#         answers.append(word['string']);
-#     elif word['color'] == 'red':
-#         bad.append(word['string']);
-#     elif word['color'] == 'black':
-#         bad.append(word['string']);
+words = json.loads(sys.argv[1])
 
-answers = ['apple','japan','bag','fish']
-bad = ['computer','italy','glasses','dictionary']
+answers = []
+bad = []
+
+for word in words:
+    if word['color'] == 'blue':
+        answers.append(word['string']);
+    elif word['color'] == 'red':
+        bad.append(word['string']);
+    elif word['color'] == 'black':
+        bad.append(word['string']);
+
+# answers = ['apple','japan','bag','fish']
+# bad = ['computer','italy','glasses','dictionary']
 
 print(candidates(answers,bad)[0])
 
