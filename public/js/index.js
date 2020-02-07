@@ -4,6 +4,11 @@ socket.on('messageSent', (message) => {
   announce(message);
 });
 
+socket.on('clearMessages', () => {
+  var announcements = document.getElementById('messages');
+  announcements.innerHTML = ""
+});
+
 function announce(message) {
   var announcement = document.createElement('div');
   announcement.innerHTML = message;
@@ -81,13 +86,13 @@ function createWords(){
 //TEMP
 function createWordStrings(){
   // var words = ['[WORD1]','[WORD2]','[WORD3]','[WORD4]','[WORD5]','[WORD6]','[WORD7]','[WORD8]','[WORD9]'];
-  var words = ['Apple','Computer','Japan','Glasses','Bag','Fish','Italy','Dictionary','Book'];
+  var words = ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book'];
   return words;
 }
 
 //TEMP
 function createColorMap(){
-  var map = ['blue','red','blue','black','blue','blue','red','blue','blue'];
+  var map = ['blue','red','blue','black','blue','blue','red','red'];
   return map;
 }
 

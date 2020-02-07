@@ -21,14 +21,13 @@ io.on('connect', (socket) => {
 
   socket.on('wordsCreated', (words) => {
 
-    var jsonWords = createJSONwords(words);
+    var jsonWords = JSON.stringify(words);
 
-    //TEMP
-    var hint = createHint(jsonWords);
-    io.to(socket.id).emit('hintGiven', hint);
-    io.to(socket.id).emit('messageSent', 'Select 3 words based on the given hint.');
-    io.to(socket.id).emit('messageSent', 'JSON words: ' + jsonWords);
-
+    io.to(socket.id).emit('messageSent', 'Waiting for hint...');
+    var hint = createHint(jsonWords, (hint) => {
+      io.to(socket.id).emit('clearMessages');
+      io.to(socket.id).emit('hintGiven', hint);
+    });
 
   });
 
@@ -41,33 +40,17 @@ io.on('connect', (socket) => {
     }
 
     if (selectedWords.length == 3){
-      var jsonResults = createResultsFile(selectedWords);
+      var jsonResults = JSON.stringify(results);
       io.to(socket.id).emit('messageSent', 'JSON results: ' +  jsonResults);
     }
   })
 
 });
 
-function createJSONwords(words){
-  var jsonWords = JSON.stringify(words);
-  fs.writeFile("words.json", jsonWords, (err, result) => {
-    if(err)
-      console.log('error', err);
+function createHint(words, callback){
+  var spawn = require("child_process").spawn;
+  var python = spawn('python3', ["./python/create_hint.py", words]);
+  python.stdout.on('data', function(hint) {
+    callback(hint.toString());
   });
-  return jsonWords
-}
-
-//TEMP
-function createHint(words){
-  var hint = 'Groceries 3'
-  return hint;
-}
-
-function createResultsFile(results){
-  var jsonResults = JSON.stringify(results);
-  fs.writeFile("results.json", jsonResults, (err, result) => {
-    if(err)
-      console.log('error', err);
-  });
-  return jsonResults;
 }
