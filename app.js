@@ -19,84 +19,66 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
-  var cachedHint = ""
-  socket.on('wordsCreated', (words) => {
+  socket.on('wordsCreated', (words, vectorPath) => {
 
     var jsonWords = JSON.stringify(words);
-
+    
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
-    var hint = createHint(jsonWords, (hint) => {
+
+    var hint = createHint(jsonWords, vectorPath, (hint) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', hint);
-      io.to(socket.id).emit('messageSent', 'Select 3 different words.');
       cachedHint = hint;
     });
 
   });
 
-  var selectedWords = [];
-  var cachedWords =[]
-  socket.on('wordSelected', (word) => {
-    if (!cachedWords.includes(word.string)){
-      selectedWords.push(word);
-      cachedWords.push(word.string);
+  socket.on('wordsSelected', (words) => {
+    var score = 0;
+    var goodWords = [];
+    var badWords = [];
 
-      io.to(socket.id).emit('clearMessages');
-      io.to(socket.id).emit('messageSent', 'Hint: ' + cachedHint.toUpperCase());
-      // io.to(socket.id).emit('messageSent', 'Select ' + (3 - selectedWords.length) + ' more words.');
+    words.forEach((word) => {
+      switch (word.color) {
+        case 'blue':
+          score++;
+          goodWords.push(word.string);
+          break;
+        case 'red':
+          score--;
+          badWords.push(word.string);
+          break;
+        case 'black':
+          score -= 2;
+          badWords.push(word.string + ' (ASSASSIN)');
+          break;
+      }
+    });
 
-      var selectsLeft = 3 - selectedWords.length;
-      if (selectsLeft > 0)
-        io.to(socket.id).emit('messageSent', 'Select ' + selectsLeft + ' more words.');
-    }
+    var goodWordsStr = "";
 
-    if (selectedWords.length == 3){
-      var score = 0;
-      var goodWords = [];
-      var badWords = [];
+    goodWords.forEach((word) => {
+      goodWordsStr += ' ' + word.toUpperCase() + ',';
+    });
+    goodWordsStr = goodWordsStr.substring(0, goodWordsStr.length - 1);
 
-      selectedWords.forEach((word) => {
-        switch (word.color) {
-          case 'blue':
-            score++;
-            goodWords.push(word.string);
-            break;
-          case 'red':
-            score--;
-            badWords.push(word.string);
-            break;
-          case 'black':
-            score -= 2;
-            badWords.push(word.string + ' (ASSASSIN)');
-            break;
-        }
-      });
+    var badWordsStr = "";
 
-      var goodWordsStr = "";
+    badWords.forEach((word) => {
+      badWordsStr += ' ' + word.toUpperCase() + ',';
+    });
+    badWordsStr = badWordsStr.substring(0, badWordsStr.length - 1);
 
-      goodWords.forEach((word) => {
-        goodWordsStr += ' ' + word.toUpperCase() + ',';
-      });
-      goodWordsStr = goodWordsStr.substring(0, goodWordsStr.length - 1);
-
-      var badWordsStr = "";
-
-      badWords.forEach((word) => {
-        badWordsStr += ' ' + word.toUpperCase() + ',';
-      });
-      badWordsStr = badWordsStr.substring(0, badWordsStr.length - 1);
-
-      io.to(socket.id).emit('messageSent', 'Score: ' + score);
-      io.to(socket.id).emit('messageSent', 'Correct Answers: ' + goodWordsStr);
-      io.to(socket.id).emit('messageSent', 'Wrong Answers: ' + badWordsStr);
-    }
+    io.to(socket.id).emit('messageSent', 'Score: ' + score);
+    io.to(socket.id).emit('messageSent', 'Correct Answers: ' + goodWordsStr);
+    io.to(socket.id).emit('messageSent', 'Wrong Answers: ' + badWordsStr);
   })
 
 });
 
-function createHint(words, callback){
+function createHint(words, vectorPath, callback){
   var spawn = require("child_process").spawn;
-  var python = spawn('python3', ["./python/create_hint.py", words]);
+  var python = spawn('python3', ["./python/create_hint_glove.py", words, vectorPath]);
   python.stdout.on('data', function(hint) {
     callback(hint.toString());
   });

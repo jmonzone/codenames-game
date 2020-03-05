@@ -18,6 +18,27 @@ function announce(message) {
   announcements.append(announcement);
 }
 
+function addMessage(text, id) {
+  var message = document.createElement('div');
+  message.innerHTML = text;
+  message.id = id;
+  message.className = 'message';
+
+  var messages = document.getElementById('messages');
+  messages.append(message);
+}
+
+function removeMessage(id) {
+  var message = document.getElementById(id);
+
+  if (message) {
+    message.remove();
+    return true;
+  }
+
+  return false;
+}
+
 function start(){
   var startButton = document.getElementById('start');
   startButton.remove();
@@ -32,44 +53,77 @@ function start(){
   display_wrapper.append(display);
 
   var words = createWords();
-  socket.emit('wordsCreated', words);
+
+  var vectorSelect = document.getElementById('vector-select');
+  var vectorPath = "glove_vectors.txt";
+  switch(vectorSelect.value)
+  {
+    case 'glove':
+      vectorPath = "glove_vectors.txt";
+      break;
+    case 'word2vec':
+      vectorPath = "word2vec_vectors.txt";
+      break;
+  }
+
+  var vectorSelectWrapper = document.getElementById('vector-select-wrapper');
+  vectorSelectWrapper.remove();
 
   var wordDisplays = displayWords(words);
   createColorChanger(wordDisplays);
+
+  socket.emit('wordsCreated', words, vectorPath);
+
+
 }
 
 socket.on('hintGiven', (hint) => {
   displayHint(hint);
+  addMessage('Select 3 words.', 'messages-selections-left');
 });
 
 function displayWords(words){
 
   var retVal = []
+  var selectedWords = [];
+
   //HTML reference to DOM element to display the words
   var display = document.getElementById('word-display');
 
   words.forEach((word) => {
-    var cell = document.createElement('BUTTON');
-    cell.className = 'word';
-    cell.id = 'word_' + word.string;
-    cell.innerHTML = word.string.toUpperCase();
-    cell.style.backgroundColor = 'white';
+
+    var word_button = document.createElement('button');
+    word_button.id = 'word-' + word.string;
+    word_button.className = 'word';
+    word_button.innerHTML = word.string.toUpperCase();
+    display.append(word_button);
 
     socket.on('hintGiven', (hint) => {
-      cell.addEventListener('click', () => {
-        socket.emit('wordSelected', word);
-      });
-    });
 
+      word_button.addEventListener('click', () => {
 
-    var cellData = {
-      id: cell.id,
+        selectedWords.push(word);
+        word_button.style.backgroundColor = 'lightgrey';
+        removeMessage('messages-selections-left');
+
+        if (selectedWords.length < 3)
+          addMessage('Select ' + (3 - selectedWords.length) + ' more words.', 'messages-selections-left');
+        else
+          socket.emit('wordsSelected', selectedWords);
+
+      },{ once : true });
+
+    })
+
+    var db = {
+      button: word_button,
+      id: word_button.id,
+      word: word,
       color: word.color,
     };
 
-    retVal.push(cellData);
+    retVal.push(db);
 
-    display.append(cell);
   });
 
   return retVal;
@@ -97,9 +151,7 @@ function createWords(){
   return words;
 }
 
-//TEMP
 function createWordStrings(){
-  // var words = ['[WORD1]','[WORD2]','[WORD3]','[WORD4]','[WORD5]','[WORD6]','[WORD7]','[WORD8]','[WORD9]'];
   var wordPool =
     ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book', 'leather',
     'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone'];
@@ -115,7 +167,6 @@ function createWordStrings(){
   return words;
 }
 
-//TEMP
 function createColorMap(){
 
   var colorPool = ['blue','red','blue','black','blue','blue','red','red'];
@@ -131,7 +182,6 @@ function createColorMap(){
   return colors;
 }
 
-//TEMP
 function displayHint(hint){
   announce('Hint: ' + hint.toUpperCase());
 }
@@ -145,29 +195,31 @@ function createColorChanger(wordDisplays){
   interactions.append(color_changer)
 
   color_changer.addEventListener('click', () => {
+
+    var reveal = color_changer.innerHTML == "Reveal Colors"
+    color_changer.innerHTML = reveal ? "Hide Colors" : "Reveal Colors";
+
+
     wordDisplays.forEach((word) => {
-      var cell = document.getElementById(word.id);
 
-      if (cell.style.backgroundColor == 'white') {
+      var word_display = document.getElementById(word.id);
 
-        color_changer.innerHTML = "Hide Colors";
+      if (reveal) {
         switch (word.color) {
           case 'blue':
-            cell.style.backgroundColor = 'lightblue';
+            word_display.style.backgroundColor = "lightblue";
             break;
           case 'red':
-            cell.style.backgroundColor = 'darkorange';
+            word_display.style.backgroundColor = 'darkorange';
             break;
           case 'black':
-            cell.style.backgroundColor = 'darkgrey';
+            word_display.style.backgroundColor = 'darkgrey';
             break;
         }
+      }
 
-      } else {
-
-        color_changer.innerHTML = "Reveal Colors";
-        cell.style.backgroundColor = 'white'
-
+      else if (word_display.style.backgroundColor != 'lightgrey') {
+        word_display.style.backgroundColor = 'white';
       }
     });
   });
