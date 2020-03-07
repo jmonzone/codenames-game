@@ -20,6 +20,20 @@
   margin: 25px;
 }
 
-.vector-select-wrapper{
-  margin: 25px;
+.settings {
+  margin-left: 25px;
+}
+
+#settings {
+  margin-top: 25px;
+  margin-bottom: 25px;
+}
+
+.range-label {
+  display: inline-block;
+}
+
+
+.interactions-button {
+  margin-left: 20px;
 }

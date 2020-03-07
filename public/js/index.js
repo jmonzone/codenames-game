@@ -18,14 +18,20 @@ function announce(message) {
   announcements.append(announcement);
 }
 
-function addMessage(text, id) {
-  var message = document.createElement('div');
+function addMessage(text, id, div = true) {
+  var format = div ? 'div' : 'pre';
+  var message = document.createElement(format);
   message.innerHTML = text;
   message.id = id;
   message.className = 'message';
 
   var messages = document.getElementById('messages');
   messages.append(message);
+}
+
+function replaceMessage(text, id){
+  var message = document.getElementById(id);
+  message.innerHTML = text;
 }
 
 function removeMessage(id) {
@@ -55,7 +61,7 @@ function start(){
   var words = createWords();
 
   var vectorSelect = document.getElementById('vector-select');
-  var vectorPath = "glove_vectors.txt";
+  var vectorPath = "";
   switch(vectorSelect.value)
   {
     case 'glove':
@@ -66,21 +72,68 @@ function start(){
       break;
   }
 
-  var vectorSelectWrapper = document.getElementById('vector-select-wrapper');
+  var minCosDistanceSelect = document.getElementById('minCosDistance-select');
+  var minCosDistance = minCosDistanceSelect.value * 0.01;
+
+  var vectorSelectWrapper = document.getElementById('settings');
   vectorSelectWrapper.remove();
+
+  createRefreshButton();
 
   var wordDisplays = displayWords(words);
   createColorChanger(wordDisplays);
 
-  socket.emit('wordsCreated', words, vectorPath);
-
+  socket.emit('wordsCreated', words, vectorPath, minCosDistance);
 
 }
 
-socket.on('hintGiven', (hint) => {
-  displayHint(hint);
-  addMessage('Select 3 words.', 'messages-selections-left');
+socket.on('hintGiven', (jsonResults) => {
+
+  var results = JSON.parse(jsonResults);
+  var hint = results.hint.toUpperCase();
+
+  if(hint != "")
+  {
+    addMessage('Hint: ' + hint, 'messages-hint');
+    addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
+  }
+  else
+  {
+    addMessage('Hint not found. Minimum cosine distance is too high.');
+  }
+
+  createResultsButton(results);
+
 });
+
+function createResultsButton(results){
+
+
+  var resultsButton = document.createElement('button');
+  resultsButton.innerHTML = "Reveal Results";
+  resultsButton.className = "interactions-button"
+
+
+  var interactions = document.getElementById('interactions');
+  interactions.append(resultsButton)
+
+  resultsButton.addEventListener('click', () => {
+
+    var reveal = resultsButton.innerHTML == "Reveal Results"
+    resultsButton.innerHTML = reveal ? "Hide Results" : "Reveal Results";
+
+    if(reveal)
+    {
+      var output = JSON.stringify(results, null, 4);
+      addMessage(output, 'messages-results', false);
+    }
+    else
+    {
+      removeMessage('messages-results');
+    }
+
+  });
+}
 
 function displayWords(words){
 
@@ -98,18 +151,29 @@ function displayWords(words){
     word_button.innerHTML = word.string.toUpperCase();
     display.append(word_button);
 
-    socket.on('hintGiven', (hint) => {
+    socket.on('hintGiven', (jsonResults) => {
+
+      var results = JSON.parse(jsonResults);
+      if (results.hint == '') return;
 
       word_button.addEventListener('click', () => {
 
         selectedWords.push(word);
-        word_button.style.backgroundColor = 'lightgrey';
-        removeMessage('messages-selections-left');
 
-        if (selectedWords.length < 3)
-          addMessage('Select ' + (3 - selectedWords.length) + ' more words.', 'messages-selections-left');
-        else
-          socket.emit('wordsSelected', selectedWords);
+        if(selectedWords.length <= results.count)
+        {
+          word_button.style.backgroundColor = 'lightgrey';
+
+          if (selectedWords.length < results.count)
+          {
+            replaceMessage('Select ' + (results.count - selectedWords.length) + ' more words.', 'messages-selections-left');
+          }
+          else if (selectedWords.length == results.count)
+          {
+            removeMessage('messages-selections-left');
+            socket.emit('wordsSelected', selectedWords);
+          }
+        }
 
       },{ once : true });
 
@@ -154,7 +218,12 @@ function createWords(){
 function createWordStrings(){
   var wordPool =
     ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book', 'leather',
-    'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone'];
+    'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone',
+    'flower','tissue','nail','video','beach','ship','face','body','head','key',
+    'wind','bridge','nose','car','bath','ghost','ring','slide','hockey','wine',
+    'root','mouth','board','vitamin','air','ear','eye','sea','pie','cell'];
+
+
   var words = [];
   var numWords = 8;
 
@@ -182,14 +251,11 @@ function createColorMap(){
   return colors;
 }
 
-function displayHint(hint){
-  announce('Hint: ' + hint.toUpperCase());
-}
-
 function createColorChanger(wordDisplays){
 
   var color_changer = document.createElement('button');
   color_changer.innerHTML = "Reveal Colors";
+  color_changer.className = "interactions-button"
 
   var interactions = document.getElementById('interactions');
   interactions.append(color_changer)
@@ -198,7 +264,6 @@ function createColorChanger(wordDisplays){
 
     var reveal = color_changer.innerHTML == "Reveal Colors"
     color_changer.innerHTML = reveal ? "Hide Colors" : "Reveal Colors";
-
 
     wordDisplays.forEach((word) => {
 
@@ -217,10 +282,24 @@ function createColorChanger(wordDisplays){
             break;
         }
       }
-
       else if (word_display.style.backgroundColor != 'lightgrey') {
         word_display.style.backgroundColor = 'white';
       }
     });
+  });
+}
+
+function createRefreshButton(){
+
+  var refreshButton = document.createElement('button');
+  refreshButton.innerHTML = "Refresh";
+  refreshButton.className = "interactions-button"
+
+
+  var interactions = document.getElementById('interactions');
+  interactions.append(refreshButton)
+
+  refreshButton.addEventListener('click', () => {
+    window.location.reload()
   });
 }

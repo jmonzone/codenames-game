@@ -19,16 +19,15 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
-  socket.on('wordsCreated', (words, vectorPath) => {
+  socket.on('wordsCreated', (words, vectorPath, minCosDistance) => {
 
     var jsonWords = JSON.stringify(words);
-    
+
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
 
-    var hint = createHint(jsonWords, vectorPath, (hint) => {
+    var hint = createHint(jsonWords, vectorPath, minCosDistance, (results) => {
       io.to(socket.id).emit('clearMessages');
-      io.to(socket.id).emit('hintGiven', hint);
-      cachedHint = hint;
+      io.to(socket.id).emit('hintGiven', results);
     });
 
   });
@@ -76,10 +75,18 @@ io.on('connect', (socket) => {
 
 });
 
-function createHint(words, vectorPath, callback){
+function createHint(words, vectorPath, minCosDistance, callback){
   var spawn = require("child_process").spawn;
-  var python = spawn('python3', ["./python/create_hint_glove.py", words, vectorPath]);
-  python.stdout.on('data', function(hint) {
-    callback(hint.toString());
+
+  var input = JSON.stringify({
+    words: words,
+    vectorPath: vectorPath,
+    minCosDistance: minCosDistance
+  });
+
+  var python = spawn('python3', ["./python/createWeightedHint.py", input]);
+
+  python.stdout.on('data', function(results) {
+    callback(results.toString());
   });
 }

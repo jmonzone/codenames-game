@@ -13,29 +13,50 @@
     <h1>Codenames AI Bot</h1>
 
     <div id="interactions">
-      <button id="start" onclick="start()">Start</button>
+      <button class="interactions-button" id="start" onclick="start()">Start</button>
     </div>
 
     <div id="word-display-wrapper">
     </div>
 
     <div id="messages">
-      <p>
-        Welcome to Codenames! <br>
-        Click the START button to begin.<br> <br>
-        Scoring is based off of: <br>
+      <div class="message">
+          Welcome to Codenames! <br>
+          Click the START button to begin.<br> <br>
+        <!-- Scoring is based off of: <br>
         +1 for guessing a good (blue) card <br>
         -1 for guessing a bad (red) card <br>
-        -2 for guessing the assassin (black) card <br>
-      </p>
+        -2 for guessing the assassin (black) card <br> -->
+      </div>
     </div>
 
-    <div id="vector-select-wrapper">
-      Select model type:
-      <select id="vector-select">
-        <option value="glove">Glove</option>
-        <option value="word2vec">Word2Vec</option>
-      </select>
+    <div id="settings">
+      <div class="settings">
+        Select model type:
+        <select class="select" id="vector-select">
+          <option value="word2vec">Word2Vec</option>
+          <option value="glove">Glove</option>
+        </select>
+      </div>
+
+      <div class="settings">
+        <span class="range-label"> Select minimum cosine distance: </span>
+        <input type="range" id="minCosDistance-select" class="range" min="0" max="100" value="50">
+        <span class="range-label" id="minCosDistance-output"> 0.5 </span>
+      </div>
+
+      <script>
+        var minCosDistanceSlider = document.getElementById("minCosDistance-select");
+        var minCosDistanceOuput = document.getElementById("minCosDistance-output");
+        minCosDistanceSlider.oninput = function() {
+          var output = this.value * 0.01;
+          if (output != 1 && output != 0)
+          {
+            output = (this.value * 0.01).toFixed(2);
+          }
+          minCosDistanceOuput.innerHTML = output;
+        }
+      </script>
     </div>
 
   </body>
