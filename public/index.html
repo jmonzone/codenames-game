@@ -22,15 +22,19 @@
     <div id="messages">
       <div class="message">
           Welcome to Codenames! <br>
-          Click the START button to begin.<br> <br>
-        <!-- Scoring is based off of: <br>
-        +1 for guessing a good (blue) card <br>
-        -1 for guessing a bad (red) card <br>
-        -2 for guessing the assassin (black) card <br> -->
+          Click the START button to begin.<br>
       </div>
     </div>
 
     <div id="settings">
+      <div class="settings">
+        Select algorithm:
+        <select class="select" id="algorithm-select">
+          <option value="2">Algorithm 2</option>
+          <option value="1">Algorithm 1</option>
+        </select>
+      </div>
+
       <div class="settings">
         Select model type:
         <select class="select" id="vector-select">
@@ -40,23 +44,42 @@
       </div>
 
       <div class="settings">
-        <span class="range-label"> Select minimum cosine distance: </span>
-        <input type="range" id="minCosDistance-select" class="range" min="0" max="100" value="50">
-        <span class="range-label" id="minCosDistance-output"> 0.5 </span>
+        <span class="range-label"> Select number of words: </span>
+        <input type="range" id="numWords-select" class="range" oninput="onNumWordsInput()" min="5" max="25" value="25">
+        <span class="range-label" id="numWords-output"> 25 </span>
       </div>
 
-      <script>
-        var minCosDistanceSlider = document.getElementById("minCosDistance-select");
-        var minCosDistanceOuput = document.getElementById("minCosDistance-output");
-        minCosDistanceSlider.oninput = function() {
-          var output = this.value * 0.01;
-          if (output != 1 && output != 0)
-          {
-            output = (this.value * 0.01).toFixed(2);
-          }
-          minCosDistanceOuput.innerHTML = output;
-        }
-      </script>
+
+      <div class="settings">
+        <span class="range-label"> Select minimum target words: </span>
+        <input type="range" id="minTargetWords-select" class="range" oninput="onMinTargetWordsInput()" min="1" max="10" value="1">
+        <span class="range-label" id="minTargetWords-output"> 1 </span>
+      </div>
+
+      <div class="settings">
+        <span class="range-label"> Select maximum cosine distance: </span>
+        <input type="range" id="maxCosDistance-select" class="range" oninput="onMaxCosDistanceInput()" min="0" max="100" value="50">
+        <span class="range-label" id="maxCosDistance-output"> 0.50 </span>
+      </div>
+
+      <div class="settings">
+        <span class="range-label"> Select blue weight: </span>
+        <input type="range" id="blueWeight-select" class="range" oninput="onBlueWeight()" min="0" max="10" value="4">
+        <span class="range-label" id="blueWeight-output"> 4 </span>
+      </div>
+
+      <div class="settings">
+        <span class="range-label"> Select red weight: </span>
+        <input type="range" id="redWeight-select" class="range" oninput="onRedWeight()" min="0" max="10" value="1">
+        <span class="range-label" id="redWeight-output"> 1 </span>
+      </div>
+
+      <div class="settings">
+        <span class="range-label"> Select assassin weight: </span>
+        <input type="range" id="blackWeight-select" class="range" oninput="onBlackWeight()" min="0" max="10" value="4">
+        <span class="range-label" id="blackWeight-output"> 4 </span>
+      </div>
+      </div>
     </div>
 
   </body>

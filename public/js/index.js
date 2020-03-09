@@ -58,33 +58,118 @@ function start(){
   var display_wrapper = document.getElementById('word-display-wrapper');
   display_wrapper.append(display);
 
-  var words = createWords();
+  var algorithmSelect = document.getElementById('algorithm-select');
+  var algorithmPath = "";
+  switch(algorithmSelect.value)
+  {
+    case '1':
+      algorithmPath = "algorithm1.py";
+      break;
+    case '2':
+      algorithmPath = "algorithm2.py";
+      break;
+  }
 
   var vectorSelect = document.getElementById('vector-select');
   var vectorPath = "";
   switch(vectorSelect.value)
   {
     case 'glove':
-      vectorPath = "glove_vectors.txt";
+      vectorPath = "glove-embeddings.txt";
       break;
     case 'word2vec':
-      vectorPath = "word2vec_vectors.txt";
+      vectorPath = "word2vec-embeddings.txt";
       break;
   }
 
-  var minCosDistanceSelect = document.getElementById('minCosDistance-select');
-  var minCosDistance = minCosDistanceSelect.value * 0.01;
+  var numWordsSelect = document.getElementById('numWords-select');
+  var numWords = parseFloat(numWordsSelect.value);
 
-  var vectorSelectWrapper = document.getElementById('settings');
-  vectorSelectWrapper.remove();
+  var minTargetWordsSelect = document.getElementById('minTargetWords-select');
+  var minTargetWords = parseFloat(minTargetWordsSelect.value);
+
+  var maxCosDistanceSelect = document.getElementById('maxCosDistance-select');
+  var maxCosDistance = maxCosDistanceSelect.value * 0.01;
+
+  var blueWeightSelect = document.getElementById('blueWeight-select');
+  var blueWeight = parseFloat(blueWeightSelect.value);
+
+  var redWeightSelect = document.getElementById('redWeight-select');
+  var redWeight = parseFloat(redWeightSelect.value);
+
+  var blackWeightSelect = document.getElementById('blackWeight-select');
+  var blackWeight = parseFloat(blackWeightSelect.value);
+
+  var settings = document.getElementById('settings');
+  settings.remove();
+
+
+  var words = createWords(numWords);
 
   createRefreshButton();
 
   var wordDisplays = displayWords(words);
   createColorChanger(wordDisplays);
 
-  socket.emit('wordsCreated', words, vectorPath, minCosDistance);
+  var param = {
+    blues: words.blues,
+    reds: words.reds,
+    blacks: words.blacks,
+    algorithmPath: algorithmPath,
+    vectorPath: vectorPath,
+    minTargetWords: minTargetWords,
+    maxCosDistance: maxCosDistance,
+    blueWeight: blueWeight,
+    redWeight: redWeight,
+    blackWeight: blackWeight,
+  };
 
+  socket.emit('wordsCreated', param);
+}
+
+function onNumWordsInput(){
+  var numWordsSelect = document.getElementById("numWords-select");
+  var numWordsOutput = document.getElementById("numWords-output");
+  numWordsOutput.innerHTML = numWordsSelect.value;
+}
+
+function onMinTargetWordsInput(){
+  var minTargetWordsSelect = document.getElementById("minTargetWords-select");
+  var minTargetWordsOutput = document.getElementById("minTargetWords-output");
+  var output = minTargetWordsSelect.value;
+  minTargetWordsOutput.innerHTML = output;
+}
+
+function onMaxCosDistanceInput(){
+  var maxCosDistanceSlider = document.getElementById("maxCosDistance-select");
+  var maxCosDistanceOuput = document.getElementById("maxCosDistance-output");
+  var output = maxCosDistanceSlider.value * 0.01;
+  if (output != 1 && output != 0)
+  {
+    output = (maxCosDistanceSlider.value * 0.01).toFixed(2);
+  }
+  maxCosDistanceOuput.innerHTML = output;
+}
+
+function onBlueWeight(){
+  var weightSlider = document.getElementById("blueWeight-select");
+  var weightOutput = document.getElementById("blueWeight-output");
+  var output = weightSlider.value;
+  weightOutput.innerHTML = output;
+}
+
+function onRedWeight(){
+  var weightSlider = document.getElementById("redWeight-select");
+  var weightOutput = document.getElementById("redWeight-output");
+  var output = weightSlider.value;
+  weightOutput.innerHTML = output;
+}
+
+function onBlackWeight(){
+  var weightSlider = document.getElementById("blackWeight-select");
+  var weightOutput = document.getElementById("blackWeight-output");
+  var output = weightSlider.value;
+  weightOutput.innerHTML = output;
 }
 
 socket.on('hintGiven', (jsonResults) => {
@@ -92,14 +177,14 @@ socket.on('hintGiven', (jsonResults) => {
   var results = JSON.parse(jsonResults);
   var hint = results.hint.toUpperCase();
 
-  if(hint != "")
+  if(results && (hint != "" || results.count == 0))
   {
     addMessage('Hint: ' + hint, 'messages-hint');
     addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
   }
   else
   {
-    addMessage('Hint not found. Minimum cosine distance is too high.');
+    addMessage('Hint not found.');
   }
 
   createResultsButton(results);
@@ -107,7 +192,6 @@ socket.on('hintGiven', (jsonResults) => {
 });
 
 function createResultsButton(results){
-
 
   var resultsButton = document.createElement('button');
   resultsButton.innerHTML = "Reveal Results";
@@ -143,13 +227,21 @@ function displayWords(words){
   //HTML reference to DOM element to display the words
   var display = document.getElementById('word-display');
 
-  words.forEach((word) => {
+  words.all.forEach((word) => {
 
     var word_button = document.createElement('button');
     word_button.id = 'word-' + word.string;
     word_button.className = 'word';
     word_button.innerHTML = word.string.toUpperCase();
     display.append(word_button);
+
+    var db = {
+      button: word_button,
+      id: word_button.id,
+      word: word,
+      color: word.color,
+      selected: false,
+    };
 
     socket.on('hintGiven', (jsonResults) => {
 
@@ -162,6 +254,7 @@ function displayWords(words){
 
         if(selectedWords.length <= results.count)
         {
+          db.selected = true,
           word_button.style.backgroundColor = 'lightgrey';
 
           if (selectedWords.length < results.count)
@@ -179,12 +272,7 @@ function displayWords(words){
 
     })
 
-    var db = {
-      button: word_button,
-      id: word_button.id,
-      word: word,
-      color: word.color,
-    };
+
 
     retVal.push(db);
 
@@ -193,39 +281,62 @@ function displayWords(words){
   return retVal;
 }
 
-function createWords(){
+function createWords(numWords){
   //Array to store the actual words to display as strings
-  var wordStrings = createWordStrings();
+  var wordStrings = createWordStrings(numWords);
 
   //Array to store a color map that determines which words are good, bad, or the assassin
-  var colorMap = createColorMap();
+  var colorMap = createColorMap(numWords);
 
-  //Array to store objects containing words and their corresponding colors
-  var words = [];
+  var words =
+  {
+    blues: [],
+    reds: [],
+    blacks: [],
+    all: [],
+  }
 
   //Creating the words array using the wordStrings and colorMap
-  for(var i = 0; i < colorMap.length; i++){
-    var word = {
-      string: wordStrings[i],
-      color: colorMap[i]
-    };
-    words.push(word);
+  for(var i = 0; i < colorMap.length; i++)
+  {
+    var string = wordStrings[i];
+    var color = colorMap[i];
+
+    switch (color)
+    {
+      case 'blue':
+        words.blues.push(string);
+        break;
+      case 'red':
+        words.reds.push(string);
+        break;
+      case 'black':
+        words.blacks.push(string);
+        break;
+    }
+
+    var word =
+    {
+      string: string,
+      color: color
+    }
+
+    words.all.push(word);
   }
 
   return words;
 }
 
-function createWordStrings(){
+function createWordStrings(numWords){
   var wordPool =
     ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book', 'leather',
     'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone',
     'flower','tissue','nail','video','beach','ship','face','body','head','key',
     'wind','bridge','nose','car','bath','ghost','ring','slide','hockey','wine',
-    'root','mouth','board','vitamin','air','ear','eye','sea','pie','cell'];
+    'root','mouth','board','vitamin','air','ear','eye','sea','pie','cell','ocean'];
 
 
   var words = [];
-  var numWords = 8;
 
   for(var i = 0; i < numWords; i++){
     let j = Math.floor(Math.random() * wordPool.length);
@@ -236,11 +347,15 @@ function createWordStrings(){
   return words;
 }
 
-function createColorMap(){
+function createColorMap(numWords){
 
-  var colorPool = ['blue','red','blue','black','blue','blue','red','red'];
+  var colorPool = Array(numWords);
+  colorPool.fill('blue', 0, numWords / 2);
+  colorPool.fill('red', numWords / 2, numWords - 1);
+  colorPool[numWords - 1] = 'black';
+
+
   var colors = [];
-  var numWords = 8;
 
   for(var i = 0; i < numWords; i++){
     let j = Math.floor(Math.random() * colorPool.length);
@@ -283,7 +398,7 @@ function createColorChanger(wordDisplays){
         }
       }
       else if (word_display.style.backgroundColor != 'lightgrey') {
-        word_display.style.backgroundColor = 'white';
+        word_display.style.backgroundColor = word_display.selected ? 'lightgrey' : 'white';
       }
     });
   });
