@@ -14,8 +14,9 @@ maxDistance = input['maxCosDistance']
 blueWeight = input['blueWeight']
 redWeight = input['redWeight']
 blackWeight = input['blackWeight']
+vectorPath = "word-embeddings/" + input['vectorPath']
 
-f = open("/Users/johnnanmonzon/Documents/web-projects/codenames/python/word-embeddings/glove-embeddings.txt");
+f = open(Path(__file__).parent.parent / vectorPath);
 
 embeddings = {}
 for line in f:

@@ -4,8 +4,6 @@ import pandas as pd
 from scipy import spatial
 from pathlib import Path
 
-f = open("/Users/johnnanmonzon/Documents/web-projects/codenames/python/word-embeddings/glove-embeddings.txt");
-
 blues = ['river','sea','ocean', 'video']
 reds = ['breakfast','lady','silk']
 blacks = ['husband']
@@ -15,6 +13,9 @@ redWeight = 1.0
 blueWeight = 4.0
 maxCosDistance = 0.5
 minTargetWords = 2
+vectorPath = "glove-embeddings.txt"
+
+f = open("../word-embeddings/" + vectorPath);
 
 embeddings = {}
 for line in f:
