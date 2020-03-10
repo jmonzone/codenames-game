@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 from scipy import spatial
 from pathlib import Path
+from itertools import combinations
 
 input = json.loads(sys.argv[1])
 blues = input['blues']
@@ -30,9 +31,9 @@ def distance(word, reference):
     return spatial.distance.cosine(embeddings[word], embeddings[reference])
 
 def goodness(word, blues, reds, blacks):
-    blueDist = blueWeight * sum([distance(word, blue) for blue in blues]) / len(blues)
-    redDist = redWeight * sum([distance(word, red) for red in reds]) / len(reds)
-    blackDist = blackWeight * sum([distance(word, black) for black in blacks]) / len(blacks)
+    blueDist = blueWeight * sum([distance(word, blue) for blue in blues])
+    redDist = redWeight * sum([distance(word, red) for red in reds])
+    blackDist = blackWeight * sum([distance(word, black) for black in blacks])
     return blackDist + redDist - blueDist
 
 def candidates(blues, reds, blacks):
@@ -45,41 +46,30 @@ def isValidHint(hint, words):
             return False
     return True
 
-average = 1
-averages = []
-ignoredWords = []
+combs = []
+averages = {}
+
+for i in range(minTargetWords, 5):
+    combs += list(combinations(blues, i));
+
+for comb in combs:
+    distances = [sum([distance(word, b) for b in comb]) / (len(comb) - 1) for word in comb] if len(comb) > 1 else [0];
+    averages[comb] = sum(distances) / len(distances)
+
+averages = sorted(averages.items(), key=lambda x: (len(x[0]) if x[1] < maxCosDistance else 0, -x[1]), reverse=True)
 targetWordCombs = {}
+for average in averages:
+    targetWordCombs[str(average[0])] = average[1]
+    if len(targetWordCombs) > 10:
+        break
 
-while average > maxCosDistance and len(blues) > minTargetWords:
-    toIgnore = blues[0]
+targetWords = averages[0][0]
 
-    distances = {}
-
-    for word in blues:
-        distances[word] = sum([distance(word, b) for b in blues]) / (len(blues) - 1)
-        if distances[word] > distances[toIgnore]:
-            toIgnore = word
-
-    average = sum(distances.values()) / len(distances.keys())
-    averages.append(average)
-    targetWordCombs[str(blues)] = average
-
-    if average > maxCosDistance:
-        blues.remove(toIgnore)
-        ignoredWords.append(toIgnore)
-
-if len(blues) == minTargetWords and len(blues) > 1:
-    for word in blues:
-        distances[word] = sum([distance(word, b) for b in blues]) / (len(blues) - 1)
-    average = sum(distances.values()) / len(distances.keys())
-    averages.append(average)
-
-candidates = candidates(blues, reds, blacks)
-
+candidates = candidates(targetWords, reds, blacks)
 hints = {}
 for candidate in candidates:
     if isValidHint(candidate, words):
-        hints[candidate] = sum([distance(word, candidate) for word in blues]) / len(blues)
+        hints[candidate] = sum([distance(word, candidate) for word in targetWords]) / len(targetWords)
     if len(hints) > 10:
         break
 
@@ -87,9 +77,8 @@ hint = list(hints.keys())[0]
 
 results = json.dumps({
     "hint": hint,
-    "count": len(blues),
-    "targetWords": str(blues),
-    "ignoredWords": str(ignoredWords),
+    "count": len(targetWords),
+    "targetWords": str(targetWords),
     "top10Hints": hints,
     "otherTargetWordCombos": targetWordCombs,
 })

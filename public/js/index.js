@@ -68,6 +68,9 @@ function start(){
     case '2':
       algorithmPath = "algorithm2.py";
       break;
+    case '3':
+      algorithmPath = "algorithm3.py";
+      break;
   }
 
   var vectorSelect = document.getElementById('vector-select');
@@ -190,12 +193,32 @@ socket.on('hintGiven', (jsonResults) => {
 
   createResultsButton(results);
 
+  socket.on('resultsCalculated', () => {
+
+    var resultsButton = document.getElementById('button-results');
+    var reveal = resultsButton.innerHTML == "Reveal Results"
+    resultsButton.innerHTML = reveal ? "Hide Results" : "Reveal Results";
+
+    if(reveal)
+    {
+      var output = JSON.stringify(results, null, 4);
+      addMessage(output, 'messages-results', false);
+    }
+    else
+    {
+      removeMessage('messages-results');
+    }
+
+  });
+
 });
+
 
 function createResultsButton(results){
 
   var resultsButton = document.createElement('button');
   resultsButton.innerHTML = "Reveal Results";
+  resultsButton.id = "button-results"
   resultsButton.className = "interactions-button"
 
 
@@ -272,8 +295,6 @@ function displayWords(words){
       },{ once : true });
 
     })
-
-
 
     retVal.push(db);
 

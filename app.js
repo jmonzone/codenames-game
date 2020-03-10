@@ -66,9 +66,10 @@ io.on('connect', (socket) => {
     });
     badWordsStr = badWordsStr.substring(0, badWordsStr.length - 1);
 
-    io.to(socket.id).emit('messageSent', 'Score: ' + score);
+    // io.to(socket.id).emit('messageSent', 'Score: ' + score);
     io.to(socket.id).emit('messageSent', 'Correct Answers: ' + goodWordsStr);
     io.to(socket.id).emit('messageSent', 'Wrong Answers: ' + badWordsStr);
+    io.to(socket.id).emit('resultsCalculated');
   })
 
 });

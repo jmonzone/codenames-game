@@ -4,20 +4,24 @@ import numpy as np
 import pandas as pd
 from scipy import spatial
 from pathlib import Path
+from itertools import combinations
 
-input = json.loads(sys.argv[1])
-blues = input['blues']
-reds = input['reds']
-blacks = input['blacks']
+blues = ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book', 'leather',
+'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone',
+'flower','tissue','nail','video','beach','ship','face','body','head','key']
+reds = ['wind','bridge','nose','car','bath','ghost','ring','slide','hockey','wine',
+'root','mouth','board','vitamin','air','ear','eye','sea','pie','cell']
+blacks = ['ocean']
 words = blues + reds + blacks
-blueWeight = input['blueWeight']
-redWeight = input['redWeight']
-blackWeight = input['blackWeight']
-maxCosDistance = input['maxCosDistance']
-minTargetWords = input['minTargetWords']
-vectorPath = "word-embeddings/" + input['vectorPath']
+blueWeight = 10
+redWeight = 1
+blackWeight = 2
+maxCosDistance = 0.5
+minTargetWords = 2
+maxTargetWords = 3
+vectorPath = "word-embeddings/word2vec-embeddings.txt"
 
-f = open(Path(__file__).parent.parent / vectorPath);
+f = open("/Users/johnnanmonzon/Documents/web-projects/codenames/python/word-embeddings/word2vec-embeddings.txt");
 
 embeddings = {}
 for line in f:
@@ -30,9 +34,9 @@ def distance(word, reference):
     return spatial.distance.cosine(embeddings[word], embeddings[reference])
 
 def goodness(word, blues, reds, blacks):
-    blueDist = blueWeight * sum([distance(word, blue) for blue in blues]) / len(blues)
-    redDist = redWeight * sum([distance(word, red) for red in reds]) / len(reds)
-    blackDist = blackWeight * sum([distance(word, black) for black in blacks]) / len(blacks)
+    blueDist = blueWeight * sum([distance(word, blue) for blue in blues])
+    redDist = redWeight * sum([distance(word, red) for red in reds])
+    blackDist = blackWeight * sum([distance(word, black) for black in blacks])
     return blackDist + redDist - blueDist
 
 def candidates(blues, reds, blacks):

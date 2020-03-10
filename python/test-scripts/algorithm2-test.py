@@ -46,10 +46,12 @@ def isValidHint(hint, words):
 average = 1
 averages = []
 ignoredWords = []
-distances = {}
+targetWordCombs = {}
 
 while average > maxCosDistance and len(blues) > minTargetWords:
     toIgnore = blues[0]
+
+    distances = {}
 
     for word in blues:
         distances[word] = sum([distance(word, b) for b in blues]) / (len(blues) - 1)
@@ -58,24 +60,37 @@ while average > maxCosDistance and len(blues) > minTargetWords:
 
     average = sum(distances.values()) / len(distances.keys())
     averages.append(average)
+    targetWordCombs[str(blues)] = average
 
     if average > maxCosDistance:
         blues.remove(toIgnore)
         ignoredWords.append(toIgnore)
 
+if len(blues) == minTargetWords and len(blues) > 1:
+    for word in blues:
+        distances[word] = sum([distance(word, b) for b in blues]) / (len(blues) - 1)
+    average = sum(distances.values()) / len(distances.keys())
+    averages.append(average)
 
-for candidate in candidates(blues, reds, blacks):
+candidates = candidates(blues, reds, blacks)
+
+hints = {}
+for candidate in candidates:
     if isValidHint(candidate, words):
-        hint = candidate
-        break;
+        hints[candidate] = sum([distance(word, candidate) for word in blues]) / len(blues)
+    if len(hints) > 10:
+        break
+
+hint = list(hints.keys())[0]
 
 results = json.dumps({
     "hint": hint,
     "count": len(blues),
-    "targetWords": blues,
-    "ignoredWords": ignoredWords,
-    "distances": distances,
-})
+    "targetWords": str(blues),
+    "ignoredWords": str(ignoredWords),
+    "top10Hints": hints,
+    "otherTargetWordCombos": targetWordCombs,
+}, indent=2)
 
 print(results)
 
