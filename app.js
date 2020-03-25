@@ -24,6 +24,7 @@ server.listen(port, () => {
 io.on('connect', (socket) => {
 
   var jsonResults = "";
+  var params = "";
 
   socket.on('wordsCreated', (param) => {
 
@@ -33,6 +34,7 @@ io.on('connect', (socket) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
       jsonResults = results;
+      param = param;
     });
 
   });
@@ -85,12 +87,15 @@ io.on('connect', (socket) => {
     var dbResults =
     {
       id: socket.request.socket.remoteAddress,
+      algorithm: params.algorithmPath,
+      vectors: params.vectorPath,
       score: score,
       hint: results.hint,
       hintCount: results.count,
-      blueWords: goodWords,
-      redWords: badWords,
-      blackWords: blackWords,
+      selectedWords: words,
+      blueWords: params.blues,
+      redWords: params.reds,
+      blackWords: params.blacks,
     };
 
     saveToDatabase(dbResults, () => {

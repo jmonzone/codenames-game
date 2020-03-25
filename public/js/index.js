@@ -126,6 +126,7 @@ function start(){
     redWeight: redWeight,
     blackWeight: blackWeight,
   };
+  
   console.log(param.vectorPath);
 
   socket.emit('wordsCreated', param);
