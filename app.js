@@ -23,6 +23,22 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
+  mongo.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const db = client.db('heroku_0d04wclg');
+    const collection = db.collection('results');
+    collection.insertOne(
+      {
+        id: socket.request.socket.remoteAddress;,
+      }, (err, result) => {}
+    );
+
   socket.on('wordsCreated', (param) => {
 
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
@@ -30,15 +46,6 @@ io.on('connect', (socket) => {
     var hint = createHint(param, (results) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
-
-      var jsonResults = JSON.parse(results);
-
-      var collection = {
-        id: socket.request.socket.remoteAddress,
-        hint: jsonResults.hint,
-      };
-
-      saveToDatabase(collection);
     });
 
   });
@@ -115,9 +122,6 @@ function saveToDatabase(collection){
 
       }, (err, result) => {}
     );
-
-    io.to(socket.id).emit('messageSent', JSON.stringify(collection));
-
 
   });
 }
