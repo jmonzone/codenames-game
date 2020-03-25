@@ -36,7 +36,7 @@ io.on('connect', (socket) => {
 
     });
     collection.find().toArray((err, items) => {
-      io.to(socket.id).emit('messageSent', items.toString());
+      io.to(socket.id).emit('messageSent', items[0].toString());
 
     });
   });
