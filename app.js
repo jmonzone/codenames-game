@@ -38,6 +38,7 @@ io.on('connect', (socket) => {
         id: socket.request.socket.remoteAddress,
       }, (err, result) => {}
     );
+  });
 
   socket.on('wordsCreated', (param) => {
 
@@ -104,24 +105,24 @@ function createHint(param, callback){
   });
 }
 
-function saveToDatabase(collection){
-  mongo.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }, (err, client) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    const db = client.db('heroku_0d04wclg');
-    const collection = db.collection('hints');
-    collection.insertOne(
-      {
-        id: collection.id,
-        hint: collection.hint,
-
-      }, (err, result) => {}
-    );
-
-  });
-}
+// function saveToDatabase(collection){
+//   mongo.connect(url, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true
+//   }, (err, client) => {
+//     if (err) {
+//       console.error(err);
+//       return;
+//     }
+//     const db = client.db('heroku_0d04wclg');
+//     const collection = db.collection('hints');
+//     collection.insertOne(
+//       {
+//         id: collection.id,
+//         hint: collection.hint,
+//
+//       }, (err, result) => {}
+//     );
+//
+//   });
+// }
