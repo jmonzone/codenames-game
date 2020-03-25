@@ -35,7 +35,7 @@ io.on('connect', (socket) => {
     const collection = db.collection('results');
     collection.insertOne(
       {
-        id: socket.request.socket.remoteAddress;,
+        id: socket.request.socket.remoteAddress,
       }, (err, result) => {}
     );
 
