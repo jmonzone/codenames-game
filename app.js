@@ -30,7 +30,15 @@ io.on('connect', (socket) => {
     var hint = createHint(param, (results) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
-      saveToDatabase(socket.id);
+
+      var jsonResults = JSON.parse(results);
+
+      var collection = {
+        id: socket.request.socket.remoteAddress,
+        hint: jsonResults.hint,
+      };
+
+      saveToDatabase(collection);
     });
 
   });
@@ -89,7 +97,7 @@ function createHint(param, callback){
   });
 }
 
-function saveToDatabase(id){
+function saveToDatabase(collection){
   mongo.connect(url, {
     useNewUrlParser: true,
     useUnifiedTopology: true
@@ -102,10 +110,14 @@ function saveToDatabase(id){
     const collection = db.collection('hints');
     collection.insertOne(
       {
+        id: collection.id,
+        hint: collection.hint,
 
-        name: 'Water',
-        ipAddress: id,
+      }, (err, result) => {}
+    );
 
-      }, (err, result) => {});
+    io.to(socket.id).emit('messageSent', JSON.stringify(collection));
+
+
   });
 }
