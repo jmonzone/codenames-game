@@ -14,6 +14,7 @@ let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
 
+
 app.use(express.static(publicPath));
 
 server.listen(port, () => {
@@ -22,27 +23,6 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
-  mongo.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }, (err, client) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    const db = client.db('heroku_0d04wclg');
-    const collection = db.collection('hints');
-    collection.insertOne({name: 'Water'}, (err, result) => {
-
-    });
-    collection.find().toArray((err, items) => {
-      io.to(socket.id).emit('messageSent', items[0].toString());
-
-    });
-  });
-
-
-
   socket.on('wordsCreated', (param) => {
 
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
@@ -50,6 +30,7 @@ io.on('connect', (socket) => {
     var hint = createHint(param, (results) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
+      saveToDatabase(socket.id);
     });
 
   });
@@ -105,5 +86,26 @@ function createHint(param, callback){
 
   python.stdout.on('data', function(results) {
     callback(results.toString());
+  });
+}
+
+function saveToDatabase(id){
+  mongo.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const db = client.db('heroku_0d04wclg');
+    const collection = db.collection('hints');
+    collection.insertOne(
+      {
+
+        name: 'Water',
+        ipAddress: id,
+
+      }, (err, result) => {});
   });
 }
