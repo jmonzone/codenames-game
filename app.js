@@ -7,6 +7,9 @@ const fs = require('fs');
 const publicPath = path.join(__dirname,'./public');
 const port = process.env.PORT || 3000;
 
+const mongo = require('mongodb').MongoClient;
+const url = process.env.MONGODB_URI || 'mongodb://localhost:27017';
+
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
@@ -18,6 +21,27 @@ server.listen(port, () => {
 });
 
 io.on('connect', (socket) => {
+
+  mongo.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const db = client.db('heroku_0d04wclg');
+    const collection = db.collection('hints');
+    collection.insertOne({name: 'Water'}, (err, result) => {
+
+    });
+    collection.find().toArray((err, items) => {
+      io.to(socket.id).emit('messageSent', items.toString());
+
+    });
+  });
+
+
 
   socket.on('wordsCreated', (param) => {
 
