@@ -23,6 +23,8 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
+  var jsonResults = "";
+
   socket.on('wordsCreated', (param) => {
 
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
@@ -30,14 +32,17 @@ io.on('connect', (socket) => {
     var hint = createHint(param, (results) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
+      jsonResults = results;
     });
 
   });
 
   socket.on('wordsSelected', (words) => {
+
     var score = 0;
     var goodWords = [];
     var badWords = [];
+    var blackWords = [];
 
     words.forEach((word) => {
       switch (word.color) {
@@ -50,8 +55,8 @@ io.on('connect', (socket) => {
           badWords.push(word.string);
           break;
         case 'black':
-          score -= 2;
-          badWords.push(word.string + ' (ASSASSIN)');
+          score -= 4;
+          blackWords.push(word.string);
           break;
       }
     });
@@ -75,10 +80,17 @@ io.on('connect', (socket) => {
     io.to(socket.id).emit('messageSent', 'Wrong answers: ' + badWordsStr);
     io.to(socket.id).emit('resultsCalculated');
 
+    var results = JSON.parse(jsonResults);
+
     var dbResults =
     {
       id: socket.request.socket.remoteAddress,
-      scor: score,
+      score: score,
+      hint: results.hint,
+      hintCount: results.count,
+      blueWords: goodWords,
+      redWords: badWords,
+      blackWords: blackWords,
     };
 
     saveToDatabase(dbResults, () => {
