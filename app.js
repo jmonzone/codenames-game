@@ -23,23 +23,6 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
-  mongo.connect(url, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  }, (err, client) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
-    const db = client.db('heroku_0d04wclg');
-    const collection = db.collection('results');
-    collection.insertOne(
-      {
-        id: socket.request.socket.remoteAddress,
-      }, (err, result) => {}
-    );
-  });
-
   socket.on('wordsCreated', (param) => {
 
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
@@ -87,10 +70,20 @@ io.on('connect', (socket) => {
     });
     badWordsStr = badWordsStr.substring(0, badWordsStr.length - 1);
 
-    // io.to(socket.id).emit('messageSent', 'Score: ' + score);
-    io.to(socket.id).emit('messageSent', 'Correct Answers: ' + goodWordsStr);
-    io.to(socket.id).emit('messageSent', 'Wrong Answers: ' + badWordsStr);
+    io.to(socket.id).emit('messageSent', 'Score: ' + score);
+    io.to(socket.id).emit('messageSent', 'Correct answers: ' + goodWordsStr);
+    io.to(socket.id).emit('messageSent', 'Wrong answers: ' + badWordsStr);
     io.to(socket.id).emit('resultsCalculated');
+
+    var dbResults =
+    {
+      id: socket.request.socket.remoteAddress,
+      scor: score,
+    };
+
+    saveToDatabase(dbResults, () => {
+      io.to(socket.id).emit('messageSent', 'Results saved to database.');
+    });
   })
 
 });
@@ -105,24 +98,22 @@ function createHint(param, callback){
   });
 }
 
-// function saveToDatabase(collection){
-//   mongo.connect(url, {
-//     useNewUrlParser: true,
-//     useUnifiedTopology: true
-//   }, (err, client) => {
-//     if (err) {
-//       console.error(err);
-//       return;
-//     }
-//     const db = client.db('heroku_0d04wclg');
-//     const collection = db.collection('hints');
-//     collection.insertOne(
-//       {
-//         id: collection.id,
-//         hint: collection.hint,
-//
-//       }, (err, result) => {}
-//     );
-//
-//   });
-// }
+function saveToDatabase(results, callback){
+
+  mongo.connect(url, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  }, (err, client) => {
+    if (err) {
+      console.error(err);
+      return;
+    }
+    const db = client.db('heroku_0d04wclg');
+    const collection = db.collection('results');
+
+    collection.insertOne(results, (err, result) => {});
+
+    callback();
+  });
+
+}
