@@ -87,8 +87,8 @@ io.on('connect', (socket) => {
     var dbResults =
     {
       id: socket.request.socket.remoteAddress,
-      algorithm: params.algorithmPath,
-      vectors: params.vectorPath,
+      algorithm: params.algorithmPath.replace('.py',''),
+      vectors: params.vectorPath.replace('-embeddings.txt',''),
       score: score,
       hint: results.hint,
       hintCount: results.count,
