@@ -34,7 +34,7 @@ io.on('connect', (socket) => {
       io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
       jsonResults = results;
-      param = param;
+      params = param;
     });
 
   });
