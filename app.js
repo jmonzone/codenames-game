@@ -92,7 +92,7 @@ io.on('connect', (socket) => {
       score: score,
       hint: results.hint,
       hintCount: results.count,
-      selectedWords: words,
+      selectedWords: goodWords.concat(badWords).concat(blackWords),
       blueWords: params.blues,
       redWords: params.reds,
       blackWords: params.blacks,
