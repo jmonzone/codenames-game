@@ -10,6 +10,8 @@ const port = process.env.PORT || 3000;
 const mongo = require('mongodb').MongoClient;
 const url = process.env.MONGODB_URI || 'mongodb://localhost:27017';
 
+let uri = 'mongodb://heroku_0d04wclg:jhloj5tfokltnjuajvb6m2n92m@ds249717.mlab.com:49717/heroku_0d04wclg'
+
 let app = express();
 let server = http.createServer(app);
 let io = socketIO(server);
@@ -116,20 +118,13 @@ function createHint(param, callback){
 }
 
 function saveToDatabase(results, callback){
-
-  mongo.connect(url, {
-    useNewUrlParser: true,
+  mongo.connect(uri, {
     useUnifiedTopology: true
-  }, (err, client) => {
-    if (err) {
-      console.error(err);
-      return;
-    }
+  }, function(err, client) {
+    if(err) throw err;
     const db = client.db('heroku_0d04wclg');
     const collection = db.collection('results');
-
     collection.insertOne(results, (err, result) => {});
-
     callback();
   });
 
