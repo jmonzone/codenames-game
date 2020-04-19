@@ -4,29 +4,39 @@
     <meta charset="utf-8">
     <title>Client | Codenames</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+   
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/index.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Oswald&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
   </head>
   <body>
 
     <h1>Codenames AI Bot</h1>
 
-    <div id="interactions">
-      <button class="interactions-button" id="start" onclick="start()">Start</button>
-    </div>
+    <hr>
 
     <div id="word-display-wrapper">
     </div>
 
     <div id="messages">
       <div class="message">
-          Welcome to Codenames! <br>
-          Click the START button to begin.<br>
+          <p>Welcome to Codenames!</p>
+          <p>Codenames is a board-game where two teams compete by each having a Spymaster give one-word clues that can point to multiple words on the 
+            board. The other players on the team attempt to guess their team's words while avoiding the words of the other team. </p>
+          <p>Our bot will display a hint based on a random algorithm. Your job is to guess which words correspond to that hint.</p>
+          <p>Press <b>START</b> to begin</p>
       </div>
     </div>
 
-    <div id="settings">
+    <br>
+
+    <div id="interactions">
+      <button class="interactions-button" id="start" onclick="start()">Start</button>
+    </div>
+
+     <div id="settings">
       <div class="settings">
         Select algorithm:
         <select class="select" id="algorithm-select">

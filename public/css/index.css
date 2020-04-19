@@ -1,3 +1,17 @@
+body{
+  background-color:#312F2F;
+  color: #F4F7F5;
+  text-align: center;
+}
+
+h1{
+  font-family: 'Oswald', sans-serif;
+  text-align: center;
+  color: #4392F1;
+  font-size: 42px;
+  margin-bottom: 5px;
+}
+
 #word-display {
   display: grid;
   grid-template-columns: 100px 100px 100px 100px 100px;
@@ -18,6 +32,9 @@
 
 .message {
   margin: 25px;
+  font-family: 'Montserrat', sans-serif;
+  text-align: center;
+  font-size:22px;
 }
 
 .settings {
@@ -33,7 +50,13 @@
   display: inline-block;
 }
 
-
 .interactions-button {
   margin-left: 20px;
+  text-align: center;
+  background-color: #EF2B38;
+  border: 2px solid #EF2B38;
+  border-radius: 15px;
+  padding: 10px 20px;
+  font-size:25px;
+  color: #F4F7F5; 
 }
