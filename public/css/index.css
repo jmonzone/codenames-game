@@ -12,12 +12,25 @@ h1{
   margin-bottom: 5px;
 }
 
+#word-display-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 #word-display {
   display: grid;
   grid-template-columns: 100px 100px 100px 100px 100px;
   grid-auto-rows: 50px;
   grid-gap: 10px;
   margin: 20px;
+}
+
+.center-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .word  {
@@ -58,5 +71,27 @@ h1{
   border-radius: 15px;
   padding: 10px 20px;
   font-size:25px;
-  color: #F4F7F5; 
+  color: #F4F7F5;
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 25px;
+  height: 25px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  margin: 10px;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

@@ -1,50 +1,5 @@
 let socket = io();
 
-socket.on('messageSent', (message) => {
-  announce(message);
-});
-
-socket.on('clearMessages', () => {
-  var announcements = document.getElementById('messages');
-  announcements.innerHTML = "";
-});
-
-function announce(message) {
-  var announcement = document.createElement('div');
-  announcement.innerHTML = message;
-  announcement.className = 'announcement';
-
-  var announcements = document.getElementById('messages');
-  announcements.append(announcement);
-}
-
-function addMessage(text, id, div = true) {
-  var format = div ? 'div' : 'pre';
-  var message = document.createElement(format);
-  message.innerHTML = text;
-  message.id = id;
-  message.className = 'message';
-
-  var messages = document.getElementById('messages');
-  messages.append(message);
-}
-
-function replaceMessage(text, id){
-  var message = document.getElementById(id);
-  message.innerHTML = text;
-}
-
-function removeMessage(id) {
-  var message = document.getElementById(id);
-
-  if (message) {
-    message.remove();
-    return true;
-  }
-
-  return false;
-}
-
 function start(){
   var startButton = document.getElementById('start');
   startButton.remove();
@@ -58,54 +13,22 @@ function start(){
   var display_wrapper = document.getElementById('word-display-wrapper');
   display_wrapper.append(display);
 
-  var algorithmSelect = document.getElementById('algorithm-select');
-  var algorithmPath = "";
-  switch(algorithmSelect.value)
-  {
-    case '1':
-      algorithmPath = "algorithm1.py";
-      break;
-    case '2':
-      algorithmPath = "algorithm2.py";
-      break;
-    case '3':
-      algorithmPath = "algorithm3.py";
-      break;
-  }
+  var algorithms = ["algorithm3.py"]
+  var index = Math.floor(Math.random() * algorithms.length);
+  var algorithmPath = algorithms[index];
+  console.log("algorithm: " + algorithmPath)
 
-  var vectorSelect = document.getElementById('vector-select');
-  var vectorPath = "";
-  switch(vectorSelect.value)
-  {
-    case 'glove':
-      vectorPath = "glove-embeddings.txt";
-      break;
-    case 'word2vec':
-      vectorPath = "word2vec-embeddings.txt";
-      break;
-  }
+  var vectors = ["glove-embeddings.txt", "word2vec-embeddings.txt", "friends-w2v.txt"]
+  var index = Math.floor(Math.random() * vectors.length);
+  var vectorPath = vectors[index];
+  console.log("vectors: " + vectorPath)
 
-  var numWordsSelect = document.getElementById('numWords-select');
-  var numWords = parseFloat(numWordsSelect.value);
-
-  var minTargetWordsSelect = document.getElementById('minTargetWords-select');
-  var minTargetWords = parseFloat(minTargetWordsSelect.value);
-
-  var maxCosDistanceSelect = document.getElementById('maxCosDistance-select');
-  var maxCosDistance = maxCosDistanceSelect.value * 0.01;
-
-  var blueWeightSelect = document.getElementById('blueWeight-select');
-  var blueWeight = parseFloat(blueWeightSelect.value);
-
-  var redWeightSelect = document.getElementById('redWeight-select');
-  var redWeight = parseFloat(redWeightSelect.value);
-
-  var blackWeightSelect = document.getElementById('blackWeight-select');
-  var blackWeight = parseFloat(blackWeightSelect.value);
-
-  var settings = document.getElementById('settings');
-  settings.remove();
-
+  var numWords = 10;
+  var minTargetWords = 2;
+  var maxCosDistance = 0.7;
+  var blueWeight = 5;
+  var redWeight = 1;
+  var blackWeight = 2;
 
   var words = createWords(numWords);
 
@@ -126,55 +49,21 @@ function start(){
     redWeight: redWeight,
     blackWeight: blackWeight,
   };
-  
-  console.log(param.vectorPath);
 
   socket.emit('wordsCreated', param);
+
+  displayLoadingIndicator()
 }
 
-function onNumWordsInput(){
-  var numWordsSelect = document.getElementById("numWords-select");
-  var numWordsOutput = document.getElementById("numWords-output");
-  numWordsOutput.innerHTML = numWordsSelect.value;
-}
+function displayLoadingIndicator(){
+  var loader = document.createElement('div');
+  loader.className = "center-wrapper"
+  loader.innerHTML = "<div class='loader'></div>";
 
-function onMinTargetWordsInput(){
-  var minTargetWordsSelect = document.getElementById("minTargetWords-select");
-  var minTargetWordsOutput = document.getElementById("minTargetWords-output");
-  var output = minTargetWordsSelect.value;
-  minTargetWordsOutput.innerHTML = output;
-}
+  var interactions = document.getElementById('messages');
+  interactions.append(loader)
 
-function onMaxCosDistanceInput(){
-  var maxCosDistanceSlider = document.getElementById("maxCosDistance-select");
-  var maxCosDistanceOuput = document.getElementById("maxCosDistance-output");
-  var output = maxCosDistanceSlider.value * 0.01;
-  if (output != 1 && output != 0)
-  {
-    output = (maxCosDistanceSlider.value * 0.01).toFixed(2);
-  }
-  maxCosDistanceOuput.innerHTML = output;
-}
-
-function onBlueWeight(){
-  var weightSlider = document.getElementById("blueWeight-select");
-  var weightOutput = document.getElementById("blueWeight-output");
-  var output = weightSlider.value;
-  weightOutput.innerHTML = output;
-}
-
-function onRedWeight(){
-  var weightSlider = document.getElementById("redWeight-select");
-  var weightOutput = document.getElementById("redWeight-output");
-  var output = weightSlider.value;
-  weightOutput.innerHTML = output;
-}
-
-function onBlackWeight(){
-  var weightSlider = document.getElementById("blackWeight-select");
-  var weightOutput = document.getElementById("blackWeight-output");
-  var output = weightSlider.value;
-  weightOutput.innerHTML = output;
+  addMessage("Thinking... ", 'message-thinking')
 }
 
 socket.on('hintGiven', (jsonResults) => {
@@ -191,24 +80,14 @@ socket.on('hintGiven', (jsonResults) => {
   {
     addMessage('Hint not found.');
   }
+  socket.on('scoreSent', (message) => {
+    addMessage(message, 'message-score');
+  });
 
-  createResultsButton(results);
+  socket.on('resultsCalculated', (score) => {
 
-  socket.on('resultsCalculated', () => {
-
-    var resultsButton = document.getElementById('button-results');
-    var reveal = resultsButton.innerHTML == "Reveal Results"
-    resultsButton.innerHTML = reveal ? "Hide Results" : "Reveal Results";
-
-    if(reveal)
-    {
-      var output = JSON.stringify(results, null, 4);
-      addMessage(output, 'messages-results', false);
-    }
-    else
-    {
-      removeMessage('messages-results');
-    }
+    var output = JSON.stringify(results, null, 4);
+    console.log(output)
 
   });
 
@@ -352,12 +231,11 @@ function createWords(numWords){
 
 function createWordStrings(numWords){
   var wordPool =
-    ['apple','computer','japan','glasses','bag','fish','italy','dictionary','book', 'leather',
+    ['apple','computer','glasses','bag','fish','italy','dictionary','book', 'leather',
     'husband','breakfast','lady','silk','festival','spirit','medicine','bike','plastic','stone',
     'flower','tissue','nail','video','beach','ship','face','body','head','key',
     'wind','bridge','nose','car','bath','ghost','ring','slide','hockey','wine',
-    'root','mouth','board','vitamin','air','ear','eye','sea','pie','cell','ocean'];
-
+    'mouth','board','air','ear','eye','sea','pie','cell','ocean'];
 
   var words = [];
 
@@ -440,4 +318,36 @@ function createRefreshButton(){
   refreshButton.addEventListener('click', () => {
     window.location.reload()
   });
+}
+
+socket.on('clearMessages', () => {
+  var announcements = document.getElementById('messages');
+  announcements.innerHTML = "";
+});
+
+function addMessage(text, id, div = true) {
+  var format = div ? 'div' : 'pre';
+  var message = document.createElement(format);
+  message.innerHTML = text;
+  message.id = id;
+  message.className = 'message';
+
+  var messages = document.getElementById('messages');
+  messages.append(message);
+}
+
+function replaceMessage(text, id){
+  var message = document.getElementById(id);
+  message.innerHTML = text;
+}
+
+function removeMessage(id) {
+  var message = document.getElementById(id);
+
+  if (message) {
+    message.remove();
+    return true;
+  }
+
+  return false;
 }

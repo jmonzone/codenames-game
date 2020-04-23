@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <title>Client | Codenames</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-   
+
     <script src="/socket.io/socket.io.js"></script>
     <script type="text/javascript" src="/js/index.js"></script>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Montserrat&family=Oswald&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/index.css">
   </head>
@@ -23,7 +23,7 @@
     <div id="messages">
       <div class="message">
           <p>Welcome to Codenames!</p>
-          <p>Codenames is a board-game where two teams compete by each having a Spymaster give one-word clues that can point to multiple words on the 
+          <p>Codenames is a board-game where two teams compete by each having a Spymaster give one-word clues that can point to multiple words on the
             board. The other players on the team attempt to guess their team's words while avoiding the words of the other team. </p>
           <p>Our bot will display a hint based on a random algorithm. Your job is to guess which words correspond to that hint.</p>
           <p>Press <b>START</b> to begin</p>
@@ -34,63 +34,6 @@
 
     <div id="interactions">
       <button class="interactions-button" id="start" onclick="start()">Start</button>
-    </div>
-
-     <div id="settings">
-      <div class="settings">
-        Select algorithm:
-        <select class="select" id="algorithm-select">
-          <option value="3">Algorithm 3 - Checks each word combination</option>
-          <option value="2">Algorithm 2 - Removes outlier word</option>
-          <option value="1">Algorithm 1 - Original</option>
-        </select>
-      </div>
-
-      <div class="settings">
-        Select model type:
-        <select class="select" id="vector-select">
-          <option value="word2vec">Word2Vec</option>
-          <option value="glove">Glove</option>
-        </select>
-      </div>
-
-      <div class="settings">
-        <span class="range-label"> Select number of words: </span>
-        <input type="range" id="numWords-select" class="range" oninput="onNumWordsInput()" min="5" max="25" value="10">
-        <span class="range-label" id="numWords-output"> 10 </span>
-      </div>
-
-
-      <div class="settings">
-        <span class="range-label"> Select minimum target words: </span>
-        <input type="range" id="minTargetWords-select" class="range" oninput="onMinTargetWordsInput()" min="1" max="10" value="2">
-        <span class="range-label" id="minTargetWords-output"> 2 </span>
-      </div>
-
-      <div class="settings">
-        <span class="range-label"> Select maximum cosine distance: </span>
-        <input type="range" id="maxCosDistance-select" class="range" oninput="onMaxCosDistanceInput()" min="0" max="100" value="70">
-        <span class="range-label" id="maxCosDistance-output"> 0.70 </span>
-      </div>
-
-      <div class="settings">
-        <span class="range-label"> Select blue weight: </span>
-        <input type="range" id="blueWeight-select" class="range" oninput="onBlueWeight()" min="0" max="10" value="5">
-        <span class="range-label" id="blueWeight-output"> 5 </span>
-      </div>
-
-      <div class="settings">
-        <span class="range-label"> Select red weight: </span>
-        <input type="range" id="redWeight-select" class="range" oninput="onRedWeight()" min="0" max="10" value="1">
-        <span class="range-label" id="redWeight-output"> 1 </span>
-      </div>
-
-      <div class="settings">
-        <span class="range-label"> Select assassin weight: </span>
-        <input type="range" id="blackWeight-select" class="range" oninput="onBlackWeight()" min="0" max="10" value="2">
-        <span class="range-label" id="blackWeight-output"> 2 </span>
-      </div>
-      </div>
     </div>
 
   </body>
