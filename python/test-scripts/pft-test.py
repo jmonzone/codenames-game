@@ -8,6 +8,9 @@ from sklearn.cluster import KMeans, estimate_bandwidth
 from scipy.spatial import distance
 from statistics import mode
 
+print('The scikit-learn version is {}.'.format(sklearn.__version__))
+
+
 # blues = ['leather', 'fish', 'apple', 'computer', 'japan']
 # reds = ['italy', 'orange', 'river', 'silk']
 # blacks = ['ocean']
