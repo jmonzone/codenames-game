@@ -78,9 +78,7 @@ results = json.dumps({
     "count" : len(targetWords),
     "targetWords" : str(targetWords),
     "top5" : best[:5],
-    "worst5" : best[-4:],
-    "clusters" : str(cluster_words) + " " +  str(clusters.labels_),
-    "inertia" : str(clusters.inertia_)
+    "worst5" : best[-4:]
 
 }, indent=2)
 
