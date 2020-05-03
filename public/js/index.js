@@ -13,15 +13,24 @@ function start(){
   var display_wrapper = document.getElementById('word-display-wrapper');
   display_wrapper.append(display);
 
-  var algorithms = ["algorithm3.py"]
-  var index = Math.floor(Math.random() * algorithms.length);
-  var algorithmPath = algorithms[index];
-  console.log("algorithm: " + algorithmPath)
-
-  var vectors = ["glove-embeddings.txt", "word2vec-embeddings.txt", "friends-w2v.txt"]
+  var vectors = ["glove-embeddings.txt", "word2vec-embeddings.txt", "friends-w2v.txt", "pft"]
   var index = Math.floor(Math.random() * vectors.length);
   var vectorPath = vectors[index];
+  // vectorPath = vectors[3]
   console.log("vectors: " + vectorPath)
+
+  if(vectorPath == "pft")
+  {
+    var algorithmPath = "pft.py";
+  }
+  else
+  {
+    var algorithms = ["algorithm4.py"]
+    var index = Math.floor(Math.random() * algorithms.length);
+    var algorithmPath = algorithms[index];
+  }
+
+  console.log("algorithm: " + algorithmPath)
 
   var numWords = 10;
   var minTargetWords = 2;
@@ -68,6 +77,7 @@ function displayLoadingIndicator(){
 
 socket.on('hintGiven', (jsonResults) => {
 
+  console.log(jsonResults)
   var results = JSON.parse(jsonResults);
   var hint = results.hint.toUpperCase();
 
