@@ -79,38 +79,33 @@ socket.on('hintGiven', (jsonResults) => {
 
   console.log(jsonResults)
 
-  var results = undefined;
   try
   {
-    results = JSON.parse(jsonResults);
+    var results = JSON.parse(jsonResults);
+    console.log(results + " parse success")
+
+    var hint = results.hint.toUpperCase();
+    console.log(hint + " parse success")
+
+    addMessage('Hint: ' + hint, 'messages-hint');
+    addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
+
+    socket.on('scoreSent', (message) => {
+      addMessage(message, 'message-score');
+    });
+
+    socket.on('resultsCalculated', (score) => {
+
+      var output = JSON.stringify(results, null, 4);
+      console.log(output)
+
+    });
   }
   catch(e)
   {
     console.log(e);
     return;
   }
-
-  var hint = results.hint.toUpperCase();
-
-  if(results && (hint != "" || results.count == 0))
-  {
-    addMessage('Hint: ' + hint, 'messages-hint');
-    addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
-  }
-  else
-  {
-    addMessage('Hint not found.');
-  }
-  socket.on('scoreSent', (message) => {
-    addMessage(message, 'message-score');
-  });
-
-  socket.on('resultsCalculated', (score) => {
-
-    var output = JSON.stringify(results, null, 4);
-    console.log(output)
-
-  });
 
 });
 
@@ -170,38 +165,37 @@ function displayWords(words){
 
     socket.on('hintGiven', (jsonResults) => {
 
-      var results = undefined;
       try
       {
-        results = JSON.parse(jsonResults);
+        var results = JSON.parse(jsonResults);
+
+        word_button.addEventListener('click', () => {
+
+          selectedWords.push(word);
+
+          if(selectedWords.length <= results.count)
+          {
+            db.selected = true,
+            word_button.style.backgroundColor = 'lightgrey';
+
+            if (selectedWords.length < results.count)
+            {
+              replaceMessage('Select ' + (results.count - selectedWords.length) + ' more words.', 'messages-selections-left');
+            }
+            else if (selectedWords.length == results.count)
+            {
+              removeMessage('messages-selections-left');
+              socket.emit('wordsSelected', selectedWords);
+            }
+          }
+
+        },{ once : true });
       }
       catch(e)
       {
         console.log(e);
         return;
       }
-
-      word_button.addEventListener('click', () => {
-
-        selectedWords.push(word);
-
-        if(selectedWords.length <= results.count)
-        {
-          db.selected = true,
-          word_button.style.backgroundColor = 'lightgrey';
-
-          if (selectedWords.length < results.count)
-          {
-            replaceMessage('Select ' + (results.count - selectedWords.length) + ' more words.', 'messages-selections-left');
-          }
-          else if (selectedWords.length == results.count)
-          {
-            removeMessage('messages-selections-left');
-            socket.emit('wordsSelected', selectedWords);
-          }
-        }
-
-      },{ once : true });
 
     })
 
