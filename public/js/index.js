@@ -79,14 +79,17 @@ socket.on('hintGiven', (jsonResults) => {
 
   console.log(jsonResults)
 
+  var results = undefined;
   try
   {
-    var results = JSON.parse(jsonResults);
+    results = JSON.parse(jsonResults);
   }
   catch(e)
   {
     console.log(e);
   }
+
+  console.log("results recieved");
 
   if (results == undefined) return;
 
@@ -170,9 +173,10 @@ function displayWords(words){
 
     socket.on('hintGiven', (jsonResults) => {
 
+      var results = undefined;
       try
       {
-        var results = JSON.parse(jsonResults);
+        results = JSON.parse(jsonResults);
       }
       catch(e)
       {
