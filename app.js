@@ -79,9 +79,9 @@ io.on('connect', (socket) => {
     });
     badWordsStr = badWordsStr.substring(0, badWordsStr.length - 1);
 
-    io.to(socket.id).emit('scoreSent', 'Score: ' + score + '<br>Correct answers: ' + goodWordsStr + '<br>Wrong answers: ' + badWordsStr');
-    // io.to(socket.id).emit('scoreSent', ');
-    // io.to(socket.id).emit('scoreSent', ');
+    io.to(socket.id).emit('scoreSent', 'Score: ' + score);
+    io.to(socket.id).emit('scoreSent', 'Correct answers: ' + goodWordsStr);
+    io.to(socket.id).emit('scoreSent', 'Wrong answers: ' + badWordsStr);
 
     var results = JSON.parse(jsonResults);
 
