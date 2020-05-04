@@ -25,18 +25,26 @@ server.listen(port, () => {
 
 io.on('connect', (socket) => {
 
-  var jsonResults = "";
+  var results = "";
   var params = "";
 
   socket.on('wordsCreated', (param) => {
 
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
 
-    var hint = createHint(param, (results) => {
-      if (results == "") return
-      io.to(socket.id).emit('hintGiven', results);
-      jsonResults = results;
-      params = param;
+    var hint = createHint(param, (jsonResults) => {
+      try
+      {
+        results = JSON.parse(jsonResults);
+
+        io.to(socket.id).emit('hintGiven', jsonResults);
+        params = param;
+      }
+      catch(e)
+      {
+        console.log(e);
+        return;
+      }
     });
 
   });
@@ -82,8 +90,6 @@ io.on('connect', (socket) => {
     io.to(socket.id).emit('scoreSent', 'Score: ' + score);
     io.to(socket.id).emit('scoreSent', 'Correct answers: ' + goodWordsStr);
     io.to(socket.id).emit('scoreSent', 'Wrong answers: ' + badWordsStr);
-
-    var results = JSON.parse(jsonResults);
 
     var dbResults =
     {
