@@ -87,11 +87,8 @@ socket.on('hintGiven', (jsonResults) => {
   catch(e)
   {
     console.log(e);
+    return;
   }
-
-  console.log("results recieved");
-
-  if (results == undefined) return;
 
   var hint = results.hint.toUpperCase();
 
@@ -181,12 +178,8 @@ function displayWords(words){
       catch(e)
       {
         console.log(e);
+        return;
       }
-
-      if (results == undefined) return;
-
-      // var results = JSON.parse(jsonResults);
-      // if (results.hint == '') return;
 
       word_button.addEventListener('click', () => {
 
