@@ -82,34 +82,35 @@ socket.on('hintGiven', (jsonResults) => {
   try
   {
     var results = JSON.parse(jsonResults);
-    var hint = results.hint.toUpperCase();
-
-    if(results && (hint != "" || results.count == 0))
-    {
-      addMessage('Hint: ' + hint, 'messages-hint');
-      addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
-    }
-    else
-    {
-      addMessage('Hint not found.');
-    }
-    socket.on('scoreSent', (message) => {
-      addMessage(message, 'message-score');
-    });
-
-    socket.on('resultsCalculated', (score) => {
-
-      var output = JSON.stringify(results, null, 4);
-      console.log(output)
-
-    });
   }
   catch(e)
   {
-    alert(e);
+    console.log(e);
   }
 
+  if (results == undefined) return;
 
+  var hint = results.hint.toUpperCase();
+
+  if(results && (hint != "" || results.count == 0))
+  {
+    addMessage('Hint: ' + hint, 'messages-hint');
+    addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
+  }
+  else
+  {
+    addMessage('Hint not found.');
+  }
+  socket.on('scoreSent', (message) => {
+    addMessage(message, 'message-score');
+  });
+
+  socket.on('resultsCalculated', (score) => {
+
+    var output = JSON.stringify(results, null, 4);
+    console.log(output)
+
+  });
 
 });
 
@@ -169,8 +170,19 @@ function displayWords(words){
 
     socket.on('hintGiven', (jsonResults) => {
 
-      var results = JSON.parse(jsonResults);
-      if (results.hint == '') return;
+      try
+      {
+        var results = JSON.parse(jsonResults);
+      }
+      catch(e)
+      {
+        console.log(e);
+      }
+
+      if (results == undefined) return;
+
+      // var results = JSON.parse(jsonResults);
+      // if (results.hint == '') return;
 
       word_button.addEventListener('click', () => {
 
