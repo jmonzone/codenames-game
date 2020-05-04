@@ -88,6 +88,8 @@ socket.on('hintGiven', (jsonResults) => {
     console.log(hint + " parse success")
 
     addMessage('Hint: ' + hint, 'messages-hint');
+    console.log(hint + " should be displayed")
+
     addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
 
     socket.on('scoreSent', (message) => {
@@ -357,6 +359,8 @@ function addMessage(text, id, div = true) {
 
   var messages = document.getElementById('messages');
   messages.append(message);
+
+  console.log("adding message: " + text)
 }
 
 function replaceMessage(text, id){
