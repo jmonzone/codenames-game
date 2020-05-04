@@ -90,16 +90,9 @@ socket.on('hintGiven', (jsonResults) => {
 
     addMessage('Hint: ' + hint, 'messages-hint');
     addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
-    
+
     socket.on('scoreSent', (message) => {
       addMessage(message, 'message-score');
-    });
-
-    socket.on('resultsCalculated', (score) => {
-
-      var output = JSON.stringify(results, null, 4);
-      console.log(output)
-
     });
   }
   catch(e)
