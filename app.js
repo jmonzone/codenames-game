@@ -33,7 +33,6 @@ io.on('connect', (socket) => {
     io.to(socket.id).emit('messageSent', 'Waiting for hint...');
 
     var hint = createHint(param, (results) => {
-      io.to(socket.id).emit('clearMessages');
       io.to(socket.id).emit('hintGiven', results);
       jsonResults = results;
       params = param;

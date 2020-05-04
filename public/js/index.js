@@ -82,16 +82,15 @@ socket.on('hintGiven', (jsonResults) => {
   try
   {
     var results = JSON.parse(jsonResults);
-    console.log(results + " parse success")
+
+    var announcements = document.getElementById('messages');
+    announcements.innerHTML = "";
 
     var hint = results.hint.toUpperCase();
-    console.log(hint + " parse success")
 
     addMessage('Hint: ' + hint, 'messages-hint');
-    console.log(hint + " should be displayed")
-
     addMessage('Select ' + results.count + ' words.', 'messages-selections-left');
-
+    
     socket.on('scoreSent', (message) => {
       addMessage(message, 'message-score');
     });
@@ -345,11 +344,6 @@ function createRefreshButton(){
   });
 }
 
-socket.on('clearMessages', () => {
-  var announcements = document.getElementById('messages');
-  announcements.innerHTML = "";
-});
-
 function addMessage(text, id, div = true) {
   var format = div ? 'div' : 'pre';
   var message = document.createElement(format);
@@ -365,11 +359,13 @@ function addMessage(text, id, div = true) {
 
 function replaceMessage(text, id){
   var message = document.getElementById(id);
+  console.log("replacing message")
   message.innerHTML = text;
 }
 
 function removeMessage(id) {
   var message = document.getElementById(id);
+  console.log("removing message")
 
   if (message) {
     message.remove();
