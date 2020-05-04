@@ -95,5 +95,4 @@ results = json.dumps({
 
 print(results)
 
-
 sys.stdout.flush()
